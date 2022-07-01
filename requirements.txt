@@ -1,0 +1,8 @@
+fastapi
+Jinja2
+uvicorn
+sqlalchemy
+pydantic
+alembic
+python-dotenv
+fastapi_sqlalchemy
