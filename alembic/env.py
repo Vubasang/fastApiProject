@@ -19,7 +19,15 @@ sys.path.append(BASE_DIR)
 config = context.config
 
 #  Making a connection
-config.set_main_option('sqlalchemy.url', os.environ['DATABASE_URL'])
+POSTGRES_USER: str = os.getenv("wubashang")
+POSTGRES_PASSWORD = os.getenv("wubashang_password")
+POSTGRES_SERVER: str = os.getenv("kjj", "localhost")
+POSTGRES_PORT: str = os.getenv("7777", 5432) # default postgres port is 5432
+POSTGRES_DB: str = os.getenv("db", "tdd")
+DATABASE_URL = f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}:{POSTGRES_PORT}/{POSTGRES_DB}"
+
+config.set_main_option('sqlalchemy.url', DATABASE_URL)
+# config.set_main_option('sqlalchemy.url', os.environ['DATABASE_URL'])
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
