@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% set active_page = "analytics" %}
+
+{% block title %}Analytics{% endblock %}
+
+{% block head %}
+{{ super() }}
+
+
+{% endblock %}
+
+{% block page_content %}
+<h1 class="cap"><center>Аналитика</center></h1>
+<img src='../static/my_plot.png'>
+<h2>{{array_result}}</h2>
+<h2>{{values}}</h2>
+<h2>{{counts}}</h2>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+
+
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% set active_page = "database" %}
+
+{% block title %}Database{% endblock %}
+
+{% block head %}
+{{ super() }}
+
+
+{% endblock %}
+
+{% block page_content %}
+<h1 class="cap">Базы данных</h1>
+    <h2>{{results}}</h2>
+
+    <h2>{{results_sort}}</h2>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+
+
+{% endblock %}
