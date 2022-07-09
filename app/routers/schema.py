@@ -9,3 +9,11 @@ class Order(BaseModel):
     class Config:
         orm_mode = True
 
+
+class StatusOrder(BaseModel):
+    id: int
+    status: str
+    created: str
+
+    class Config:
+        orm_mode = True

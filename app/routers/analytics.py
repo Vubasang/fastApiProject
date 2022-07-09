@@ -17,6 +17,7 @@ router = APIRouter()
 templates = Jinja2Templates(directory="templates/")
 
 from .models import Order
+from .models import Statusorder
 
 @router.get("/analytics", response_class=HTMLResponse)
 def form_get(request: Request):
@@ -29,11 +30,13 @@ def form_get(request: Request):
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     BaseException = declarative_base()
     db = SessionLocal()
-    result = db.query(Order.date).all()
-    results = sorted([a[0].strftime('%Y/%m/%d') for a in result])
+    result_order = db.query(Order.date).all()
+    # result = db.query(Order.date).filter(Order.orders_statusorder.has(Statusorder.status != 'CANCELED')).all()
+
+    result_orders = sorted([a[0].strftime('%Y/%m/%d') for a in result_order])
 
     array_result = {}
-    for a in results:
+    for a in result_orders:
         try:
             array_result[a] += 1
         except KeyError:
@@ -49,7 +52,7 @@ def form_get(request: Request):
         values.append(value)
         counts.append(key)
 
-    plt.figure(figsize=(14.9999, 7))
+    plt.figure(figsize=(14.9, 7))
     plt.plot(values, counts)
     for a, b in zip(values, counts):
         plt.text(a, b, str(b))
@@ -59,5 +62,21 @@ def form_get(request: Request):
     plt.gcf().autofmt_xdate()
     plt.savefig('static/my_plot.png')
 
-    return templates.TemplateResponse('analytics.html', context={'request': request, 'array_result': array_result, 'values': values, 'counts': counts})
+    result_status = db.query(Statusorder.status).filter(Statusorder.status == 'CANCELED').all()
+    created_status = db.query(Statusorder.created).filter(Statusorder.status == 'COMPLETED').all()
+    created_statuss = sorted([a[0].strftime('%Y/%m/%d') for a in created_status])
+
+    array_status = {}
+    for a in created_statuss:
+        try:
+            array_status[a] += 1
+        except KeyError:
+            array_status[a] = 1
+
+    for item in sorted(array_status):
+        print(item, array_status[item])
+
+    return templates.TemplateResponse('analytics.html', context={'request': request, 'array_result': array_result, 'values': values,
+                                                                 'counts': counts, 'result_status': result_status, 'created_statuss': created_statuss,
+                                                                 'array_status': array_status})
 
