@@ -36,7 +36,9 @@ def form_database1(request: Request):
     BaseException = declarative_base()
     db = SessionLocal()
     # print('QUERY', db.query(Order.date))
-    result = db.query(Order.date).all()
+    result = db.query(Order.date)
+               .filter(Order.statuses.any(Status.status != 'CANCELED'))
+               .all()
     results = [a[0].strftime('%Y/%m/%d') for a in result]
     print(result)
     return templates.TemplateResponse('database.html', context={'request': request, 'results': result, 'results_sort': sorted(results)})
