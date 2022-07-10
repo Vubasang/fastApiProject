@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from easycharts import ChartServer
+from datetime import datetime
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -30,9 +31,9 @@ def form_get(request: Request):
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     BaseException = declarative_base()
     db = SessionLocal()
-    result_order = db.query(Order.date).all()
-    # result = db.query(Order.date).filter(Order.orders_statusorder.has(Statusorder.status != 'CANCELED')).all()
 
+    # Всего сколько заказов
+    result_order = db.query(Order.date).all()
     result_orders = sorted([a[0].strftime('%Y/%m/%d') for a in result_order])
 
     array_result = {}
@@ -42,13 +43,55 @@ def form_get(request: Request):
         except KeyError:
             array_result[a] = 1
 
-    for item in sorted(array_result):
-        print(item, array_result[item])
+    # Количество тестовых заказов
+    order_test = db.query(Order.id).filter((Order.unit_id == 1) | (Order.unit_id == 2) | (Order.unit_id == 3)).all()
+    order_tests = sorted([a[0] for a in order_test])
 
-    c = collections.Counter(array_result)
+    date_test = db.query(Order.date).filter((Order.unit_id == 1) | (Order.unit_id == 2) | (Order.unit_id == 3)).all()
+    date_tests = sorted([a[0].strftime('%Y/%m/%d') for a in date_test])
+
+    array_date = {}
+    for a in date_tests:
+        try:
+            array_date[a] += 1
+        except KeyError:
+            array_date[a] = 1
+
+    for i in array_result:
+        if i not in array_date:
+            array_date[i] = 0
+
+    array_date_test = dict(sorted(array_date.items(), key=lambda x: datetime.strptime(x[0], "%Y/%m/%d")))
+
+    # Количество удаленных заказов
+    order_canceled = db.query(Statusorder.order_id).filter(Statusorder.status == 'CANCELED').all()
+    order_canceleds = sorted([a[0] for a in order_canceled])
+
+    list_order_canceleds = [i for i in order_canceleds if i not in order_tests]
+    date_order_canceled = []
+    for i in list_order_canceleds:
+        date_order_canceled.append(db.query(Order.date).filter(Order.id == i).all())
+
+    date_order_canceleds = sorted([a[0][0].strftime('%Y/%m/%d') for a in date_order_canceled])
+    array_order_canceleds = {}
+
+    for a in date_order_canceleds:
+        try:
+            array_order_canceleds[a] += 1
+        except KeyError:
+            array_order_canceleds[a] = 1
+
+    for i in array_result:
+        if i not in array_order_canceleds:
+            array_order_canceleds[i] = 0
+
+    array_canceleds = dict(sorted(array_order_canceleds.items(), key=lambda x: datetime.strptime(x[0], "%Y/%m/%d")))
+
+    # Общее количество заказов по дням
+    c_date = collections.Counter(array_result) - collections.Counter(array_date_test) - collections.Counter(array_canceleds)
     values = []
     counts = []
-    for value, key in c.items():
+    for value, key in c_date.items():
         values.append(value)
         counts.append(key)
 
@@ -62,21 +105,14 @@ def form_get(request: Request):
     plt.gcf().autofmt_xdate()
     plt.savefig('static/my_plot.png')
 
-    result_status = db.query(Statusorder.status).filter(Statusorder.status == 'CANCELED').all()
-    created_status = db.query(Statusorder.created).filter(Statusorder.status == 'COMPLETED').all()
-    created_statuss = sorted([a[0].strftime('%Y/%m/%d') for a in created_status])
+    array_total = {}
+    for k, v in array_result.items():
+        array_total[k] = v - array_date_test.get(k, 0) - array_canceleds.get(k, 0)
 
-    array_status = {}
-    for a in created_statuss:
-        try:
-            array_status[a] += 1
-        except KeyError:
-            array_status[a] = 1
 
-    for item in sorted(array_status):
-        print(item, array_status[item])
 
     return templates.TemplateResponse('analytics.html', context={'request': request, 'array_result': array_result, 'values': values,
-                                                                 'counts': counts, 'result_status': result_status, 'created_statuss': created_statuss,
-                                                                 'array_status': array_status})
-
+                                                                 'counts': counts, 'order_tests': order_tests, 'date_tests': array_date_test,
+                                                                 'order_canceled': list_order_canceleds,
+                                                                 'date_order_canceleds': date_order_canceleds,
+                                                                 'array_order_canceleds': array_canceleds, 'array_total': array_total})

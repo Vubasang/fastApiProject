@@ -5,6 +5,7 @@ from pydantic import BaseModel
 class Order(BaseModel):
     id: int
     date: str
+    unit_id: int
 
     class Config:
         orm_mode = True
@@ -12,6 +13,7 @@ class Order(BaseModel):
 
 class StatusOrder(BaseModel):
     id: int
+    order_id: int
     status: str
     created: str
 
