@@ -21,3 +21,8 @@ class Statusorder(Base):
     status = Column(VARCHAR(120))
     created = Column(TIMESTAMP)
 
+
+class Organisations(Base):
+    __tablename__ = 'organisations_organisation'
+    id = Column(BigInteger, primary_key=True)
+    name = Column(VARCHAR(100))

@@ -19,6 +19,7 @@ templates = Jinja2Templates(directory="templates/")
 
 from .models import Order
 from .models import Statusorder
+from .models import Organisations
 
 @router.get("/analytics", response_class=HTMLResponse)
 def form_get(request: Request):
@@ -35,6 +36,9 @@ def form_get(request: Request):
     # Всего сколько заказов
     result_order = db.query(Order.date).all()
     result_orders = sorted([a[0].strftime('%Y/%m/%d') for a in result_order])
+
+    id_order = db.query(Order.id).all()
+    id_orders = sorted([a[0] for a in id_order])
 
     array_result = {}
     for a in result_orders:
@@ -108,11 +112,60 @@ def form_get(request: Request):
     array_total = {}
     for k, v in array_result.items():
         array_total[k] = v - array_date_test.get(k, 0) - array_canceleds.get(k, 0)
+    # Количество заказов (по заведениям)
 
+    for i in order_tests or i in list_order_canceleds:
+        id_orders.remove(i)
 
+    date_order = []
+    for i in id_orders:
+        date_order.append(db.query(Order.date).filter(Order.id == i).all())
+    date_orders = sorted([a[0][0].strftime('%Y/%m/%d') for a in date_order])
 
-    return templates.TemplateResponse('analytics.html', context={'request': request, 'array_result': array_result, 'values': values,
-                                                                 'counts': counts, 'order_tests': order_tests, 'date_tests': array_date_test,
+    unit_id_organisation = []
+    for i in id_orders:
+        unit_id_organisation.append(db.query(Order.unit_id).filter(Order.id == i).all())
+    unit_id_organisations = [a[0][0] for a in unit_id_organisation]
+
+    name_organisation = []
+    for i in unit_id_organisations:
+        name_organisation.append(db.query(Organisations.name).filter(Organisations.id == i).all())
+    name_organisations = [a[0][0] for a in name_organisation]
+    organisations = list(set(name_organisations))
+
+    # Создать пустой массив на основе названия организации
+    for i in range(len(organisations)):
+        globals()[f'list_{i}'] = []
+
+    dict_date_and_organisation = list(zip(date_orders, name_organisations))
+    dict_date_and_organisations = {}
+    for a in dict_date_and_organisation:
+        try:
+            dict_date_and_organisations[a] += 1
+        except KeyError:
+            dict_date_and_organisations[a] = 1
+
+    id_name_organisation = []
+    for i in organisations:
+        id_name_organisation.append(db.query(Organisations.id).filter(Organisations.name == i).all())
+    id_name_organisations = [a[0][0] for a in id_name_organisation]
+
+    list_date_order = list(set(date_orders))
+    list_date_orders = sorted([a for a in list_date_order])
+
+    id_organisation = db.query(Order.id).filter(Order.unit_id != 1).filter(Order.unit_id != 2).filter(Order.unit_id != 3).all()
+    id_organisations = sorted([a[0] for a in id_organisation])
+    date_organisation = db.query(Order.date).filter(Order.unit_id != 1).filter(Order.unit_id != 2).filter(Order.unit_id != 3).all()
+    date_organisations = sorted([a[0].strftime('%Y/%m/%d') for a in date_organisation])
+
+    return templates.TemplateResponse('analytics.html', context={'request': request, 'array_result': array_result, 'id_orders': id_orders,
+                                                                 'date_orders': date_orders, 'unit_id_organisations': unit_id_organisations,
+                                                                 'name_organisations': name_organisations, 'organisations': organisations,
+                                                                 'id_name_organisations': id_name_organisations,'list_date_orders': list_date_orders,
+                                                                 'dict_date_and_organisations': dict_date_and_organisations,
+                                                                 'values': values, 'counts': counts,
+                                                                 'order_tests': order_tests, 'date_tests': array_date_test,
                                                                  'order_canceled': list_order_canceleds,
                                                                  'date_order_canceleds': date_order_canceleds,
-                                                                 'array_order_canceleds': array_canceleds, 'array_total': array_total})
+                                                                 'array_order_canceleds': array_canceleds, 'array_total': array_total,
+                                                                 'id_organisation': id_organisations, 'date_organisations': date_organisations})
