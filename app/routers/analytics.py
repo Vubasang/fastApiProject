@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from easycharts import ChartServer
 from datetime import datetime
+import plotly.express as px
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -113,8 +114,8 @@ def form_get(request: Request):
     array_total = {}
     for k, v in array_result.items():
         array_total[k] = v - array_date_test.get(k, 0) - array_canceleds.get(k, 0)
-    # Количество заказов (по заведениям)
 
+    # Количество заказов (по заведениям)
     for i in order_tests:
         id_orders.remove(i)
     for i in list_order_canceleds:
@@ -134,10 +135,6 @@ def form_get(request: Request):
     for i in unit_id_organisations:
         name_organisation.append(db.query(Organisations.name).filter(Organisations.id == i).all())
     name_organisations = [a[0][0] for a in name_organisation]
-
-    # Создать пустой массив на основе названия организации
-    # for i in range(len(organisations)):
-    #   globals()[f'list_{i}'] = []
 
     dict_date_and_organisation = list(zip(date_orders, name_organisations))
     dict_date_and_organisations = {}
@@ -199,6 +196,22 @@ def form_get(request: Request):
     plt.gcf().autofmt_xdate()
     plt.legend(fontsize=8)
     plt.savefig('static/Analytics_Number_of_orders_by_organization.png')
+
+    # Количество заказов за все время по заведениям (по заведениям)
+    list_organizations_total_orders = []
+    for i in range(len(organisations)):
+        # globals()[f'Organizations_total_orders_{i}'] = sum(globals()[f'ls_{i}'])
+        list_organizations_total_orders.append(sum(globals()[f'ls_{i}']))
+
+    fig_orders = px.pie(values=list_organizations_total_orders, names=organisations,
+                        color_discrete_sequence=px.colors.sequential.RdBu, width=800, height=400)
+
+    fig_orders.update_traces(textposition='outside',
+                             textinfo='percent+label+value',
+                             marker=dict(line=dict(color='#FFFFFF')),
+                             textfont_size=12)
+
+    fig_orders.write_image('static/Number_of_orders_for_all_time_by_organization.png')
 
     list_date_order = list(set(date_orders))
     list_date_orders = sorted([a for a in list_date_order])
