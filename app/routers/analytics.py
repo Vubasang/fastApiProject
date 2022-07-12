@@ -7,8 +7,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from easycharts import ChartServer
 from datetime import datetime
 
-import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
+import random
 
 import collections
 
@@ -107,14 +108,16 @@ def form_get(request: Request):
     plt.xlabel('Дата', fontsize=14)
     plt.ylabel('Общее количество заказов', fontsize=14)
     plt.gcf().autofmt_xdate()
-    plt.savefig('static/my_plot.png')
+    plt.savefig('static/Analytics_Total_number_of_orders.png')
 
     array_total = {}
     for k, v in array_result.items():
         array_total[k] = v - array_date_test.get(k, 0) - array_canceleds.get(k, 0)
     # Количество заказов (по заведениям)
 
-    for i in order_tests or i in list_order_canceleds:
+    for i in order_tests:
+        id_orders.remove(i)
+    for i in list_order_canceleds:
         id_orders.remove(i)
 
     date_order = []
@@ -131,11 +134,10 @@ def form_get(request: Request):
     for i in unit_id_organisations:
         name_organisation.append(db.query(Organisations.name).filter(Organisations.id == i).all())
     name_organisations = [a[0][0] for a in name_organisation]
-    organisations = list(set(name_organisations))
 
     # Создать пустой массив на основе названия организации
-    for i in range(len(organisations)):
-        globals()[f'list_{i}'] = []
+    # for i in range(len(organisations)):
+    #   globals()[f'list_{i}'] = []
 
     dict_date_and_organisation = list(zip(date_orders, name_organisations))
     dict_date_and_organisations = {}
@@ -145,10 +147,58 @@ def form_get(request: Request):
         except KeyError:
             dict_date_and_organisations[a] = 1
 
-    id_name_organisation = []
-    for i in organisations:
-        id_name_organisation.append(db.query(Organisations.id).filter(Organisations.name == i).all())
-    id_name_organisations = [a[0][0] for a in id_name_organisation]
+    date_and_organisations = []
+    number_of_orders_by_organization = []
+    for value, key in dict_date_and_organisations.items():
+        date_and_organisations.append(value)
+        number_of_orders_by_organization.append(key)
+
+    dates = []
+    for i in range(len(date_and_organisations) - 1):
+        if date_and_organisations[i][0] not in dates:
+            dates.append(date_and_organisations[i][0])
+
+    organisations = []
+    for i in range(len(date_and_organisations) - 1):
+        if date_and_organisations[i][1] not in organisations:
+            organisations.append(date_and_organisations[i][1])
+
+    for i in range(len(organisations)):
+        globals()[f'ls_{i}'] = []
+        for j in range(len(dates)):
+            if (dates[j], organisations[i]) in date_and_organisations:
+                for k in range(len(date_and_organisations)):
+                    if (dates[j], organisations[i]) == date_and_organisations[k]:
+                        globals()[f'ls_{i}'].append(number_of_orders_by_organization[k])
+            else:
+                if (dates[j], organisations[i]) not in date_and_organisations:
+                    globals()[f'ls_{i}'].append(0)
+
+    # Установить ширину полосы
+    barWidth = 0.15
+    fig, ax = plt.subplots(figsize=(14.9, 7))
+    # Установить положение стержня по оси X
+    # br0 = np.arange(len(dates))
+    for i in range(0, len(organisations)):
+        if i == 0:
+            globals()[f'br{i}'] = np.arange(len(dates))
+        else:
+            globals()[f'br{i}'] = [x + barWidth for x in globals()[f'br{i - 1}']]
+
+    for i in range(len(organisations)):
+        plt.bar(globals()[f'br{i}'], globals()[f'ls_{i}'], color=(random.random(), random.random(), random.random()),
+                width=barWidth,
+                edgecolor='grey', label=organisations[i])
+
+    # Добавление Xticks и Yticks
+    plt.title('Количество заказов (по заведениям)', fontsize=18, color='b')
+    plt.xlabel('Дата', fontweight='bold', fontsize=14)
+    plt.ylabel('Количество заказов (по заведениям)', fontweight='bold', fontsize=14)
+    plt.xticks([r + barWidth for r in range(len(dates))], dates, fontsize=10)
+    plt.yticks(fontsize=10)
+    plt.gcf().autofmt_xdate()
+    plt.legend(fontsize=8)
+    plt.savefig('static/Analytics_Number_of_orders_by_organization.png')
 
     list_date_order = list(set(date_orders))
     list_date_orders = sorted([a for a in list_date_order])
@@ -160,8 +210,8 @@ def form_get(request: Request):
 
     return templates.TemplateResponse('analytics.html', context={'request': request, 'array_result': array_result, 'id_orders': id_orders,
                                                                  'date_orders': date_orders, 'unit_id_organisations': unit_id_organisations,
-                                                                 'name_organisations': name_organisations, 'organisations': organisations,
-                                                                 'id_name_organisations': id_name_organisations,'list_date_orders': list_date_orders,
+                                                                 'name_organisations': name_organisations,
+                                                                 'list_date_orders': list_date_orders,
                                                                  'dict_date_and_organisations': dict_date_and_organisations,
                                                                  'values': values, 'counts': counts,
                                                                  'order_tests': order_tests, 'date_tests': array_date_test,

@@ -13,3 +13,4 @@ dateparser
 easycharts
 matplotlib
 pandas
+numpy
