@@ -10,10 +10,26 @@
 {% endblock %}
 
 {% block page_content %}
-<h1 class="cap">Базы данных</h1>
-    <h2>{{results}}</h2>
-
-    <h2>{{results_sort}}</h2>
+<form action="http://127.0.0.1:8000/couriersalaries" method="get">
+    <h1>Зарплаты курьеров по дням</h1>
+    <br>Выберите дату: <input type="date" id="demo" name="time"/>
+    <script>
+        var todayDate = new Date()
+        var month = todayDate.getMonth()
+        var year = todayDate.getUTCFullYear()
+        var tdate = todayDate.getDate()
+        if(month < 10){
+            month = "0" + month
+        }
+        if(tdate < 10){
+            tdate = "0" + tdate
+        }
+        var maxDate = year + "-" + month + "-" + tdate
+        document.getElementById("demo").setAttribute("max", maxDate)
+        console.log(maxDate)
+    </script>
+    <input type="submit" value="Результат"/>
+</form>
 
 {% endblock %}
 
