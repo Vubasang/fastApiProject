@@ -17,13 +17,13 @@ templates = Jinja2Templates(directory="templates")
 router = APIRouter()
 
 
-'''@router.get("/database", response_class=HTMLResponse)
+'''@router.get("/couriersalaries", response_class=HTMLResponse)
 async def database_home(request: Request):
     key = os.getenv("database_key")
     print(key)
-    return templates.TemplateResponse("database.html", {"request": request})'''
+    return templates.TemplateResponse("couriersalaries.html", {"request": request})'''
 
-@router.get("/database", response_class=HTMLResponse)
+@router.get("/couriersalaries", response_class=HTMLResponse)
 def form_database1(request: Request):
     SQLALCHEMY_DATABASE_URL = "postgresql://wubashang:wubashang_password@gogotech.ru:7777/db"
 
@@ -39,5 +39,5 @@ def form_database1(request: Request):
     result = db.query(Order.date).all()
     results = [a[0].strftime('%Y/%m/%d') for a in result]
     print(result)
-    return templates.TemplateResponse('database.html', context={'request': request, 'results': result, 'results_sort': sorted(results)})
+    return templates.TemplateResponse('couriersalaries.html', context={'request': request, 'results': result, 'results_sort': sorted(results)})
 

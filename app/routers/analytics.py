@@ -203,13 +203,21 @@ def form_get(request: Request):
         # globals()[f'Organizations_total_orders_{i}'] = sum(globals()[f'ls_{i}'])
         list_organizations_total_orders.append(sum(globals()[f'ls_{i}']))
 
+    # Количество заказов за все время
+    total_orders = sum(list_organizations_total_orders)
     fig_orders = px.pie(values=list_organizations_total_orders, names=organisations,
-                        color_discrete_sequence=px.colors.sequential.RdBu, width=800, height=400)
+                        color_discrete_sequence=px.colors.sequential.RdBu, width=1490, height=700,
+                        title="Количество заказов за все время по заведениям (по заведениям)")
 
     fig_orders.update_traces(textposition='outside',
                              textinfo='percent+label+value',
                              marker=dict(line=dict(color='#FFFFFF')),
-                             textfont_size=12)
+                             textfont_size=14)
+
+    fig_orders.update_layout(title_text='Количество заказов за все время по заведениям (по заведениям)', title_x=0.5, font=dict(
+        size=16,
+        color='#0000FF'
+    ))
 
     fig_orders.write_image('static/Number_of_orders_for_all_time_by_organization.png')
 
@@ -221,6 +229,9 @@ def form_get(request: Request):
     date_organisation = db.query(Order.date).filter(Order.unit_id != 1).filter(Order.unit_id != 2).filter(Order.unit_id != 3).all()
     date_organisations = sorted([a[0].strftime('%Y/%m/%d') for a in date_organisation])
 
+    # Аналитика по периодам
+
+
     return templates.TemplateResponse('analytics.html', context={'request': request, 'array_result': array_result, 'id_orders': id_orders,
                                                                  'date_orders': date_orders, 'unit_id_organisations': unit_id_organisations,
                                                                  'name_organisations': name_organisations,
@@ -231,4 +242,5 @@ def form_get(request: Request):
                                                                  'order_canceled': list_order_canceleds,
                                                                  'date_order_canceleds': date_order_canceleds,
                                                                  'array_order_canceleds': array_canceleds, 'array_total': array_total,
-                                                                 'id_organisation': id_organisations, 'date_organisations': date_organisations})
+                                                                 'id_organisation': id_organisations, 'date_organisations': date_organisations,
+                                                                 'total_orders': total_orders})
