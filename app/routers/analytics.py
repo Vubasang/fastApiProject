@@ -23,6 +23,9 @@ from .models import Order
 from .models import Statusorder
 from .models import Organisations
 
+import matplotlib
+matplotlib.use("agg")
+
 @router.get("/analytics", response_class=HTMLResponse)
 def form_get(request: Request):
     SQLALCHEMY_DATABASE_URL = "postgresql://wubashang:wubashang_password@gogotech.ru:7777/db"
@@ -101,7 +104,7 @@ def form_get(request: Request):
         values.append(value)
         counts.append(key)
 
-    plt.figure(figsize=(14.9, 7))
+    fig1 = plt.figure(figsize=(14.9, 7))
     plt.plot(values, counts)
     for a, b in zip(values, counts):
         plt.text(a, b, str(b))
@@ -109,7 +112,8 @@ def form_get(request: Request):
     plt.xlabel('Дата', fontsize=14)
     plt.ylabel('Общее количество заказов', fontsize=14)
     plt.gcf().autofmt_xdate()
-    plt.savefig('static/Analytics_Total_number_of_orders.png')
+    fig1.savefig('static/Analytics_Total_number_of_orders.png')
+    plt.close()
 
     array_total = {}
     for k, v in array_result.items():
@@ -173,7 +177,8 @@ def form_get(request: Request):
 
     # Установить ширину полосы
     barWidth = 0.15
-    fig, ax = plt.subplots(figsize=(14.9, 7))
+    # fig, ax = plt.subplots(figsize=(14.9, 7))
+    fig2 = plt.figure(figsize=(14.9, 7))
     # Установить положение стержня по оси X
     # br0 = np.arange(len(dates))
     for i in range(0, len(organisations)):
@@ -195,7 +200,7 @@ def form_get(request: Request):
     plt.yticks(fontsize=10)
     plt.gcf().autofmt_xdate()
     plt.legend(fontsize=8)
-    plt.savefig('static/Analytics_Number_of_orders_by_organization.png')
+    fig2.savefig('static/Analytics_Number_of_orders_by_organization.png')
 
     # Количество заказов за все время по заведениям (по заведениям)
     list_organizations_total_orders = []

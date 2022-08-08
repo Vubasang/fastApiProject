@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% set active_page = "analytics_by_periods" %}
+
+{% block title %}Analytics By Periods{% endblock %}
+
+{% block head %}
+{{ super() }}
+
+
+{% endblock %}
+
+{% block page_content %}
+<h1 class="cap"><center>Аналитика</center></h1>
+<img src='../static/Analytics_Total_number_of_orders.png'>
+<img src='../static/Analytics_Number_of_orders_by_organization.png'>
+<img src='../static/Number_of_orders_for_all_time_by_organization.png'>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+
+
+{% endblock %}

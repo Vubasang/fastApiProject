@@ -26,3 +26,10 @@ class Organisations(Base):
     __tablename__ = 'organisations_organisation'
     id = Column(BigInteger, primary_key=True)
     name = Column(VARCHAR(100))
+
+class Couriers(Base):
+    __tablename__ = 'users_user'
+    id = Column(BigInteger, primary_key=True)
+    first_name = Column(VARCHAR(30))
+    last_name = Column(VARCHAR(30))
+    middle_name = Column(VARCHAR(30))
