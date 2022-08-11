@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, BigInteger, VARCHAR, ForeignKey, TIMESTAMP
+from sqlalchemy import Column, DateTime, BigInteger, VARCHAR, ForeignKey, TIMESTAMP, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
 
@@ -10,6 +10,8 @@ class Order(Base):
     id = Column(BigInteger, primary_key=True)
     date = Column(DateTime(timezone=True))
     unit_id = Column(BigInteger)
+    courier_id = Column(BigInteger)
+    delivery_cost = Column(Integer)
     # statusorder_id = Column(VARCHAR(120), ForeignKey('orders_statusorder.id'))
     # orders_statusorder = relationship(Statusorder, backref=backref('orders_orders', uselist=True))
 
