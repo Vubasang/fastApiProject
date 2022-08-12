@@ -283,6 +283,16 @@ def couriersalaries(request: Request, dateSelected: Union[str, None] = Form(None
         k = datetime.strptime(dateSelected, "%Y-%m-%d").strftime('%Y/%m/%d')
         print(k)
 
+        fullname_by_date = []
+        id_couriers_by_date = []
+        salaries_couriers_by_date = []
+
+        for i in range(len(list_date_and_couriers)):
+            if list_date_and_couriers[i][0] == k:
+                fullname_by_date.append(list_date_and_couriers[i][1])
+                id_couriers_by_date.append(list_date_and_couriers[i][2])
+                salaries_couriers_by_date.append(salaries[i])
+
     else:
         resultt = "Пожалуйста выберите правильную дату"
 
@@ -312,5 +322,8 @@ def couriersalaries(request: Request, dateSelected: Union[str, None] = Form(None
                                                                        'dict_date_and_courier': dict_date_and_courier,
                                                                        'delivery_costs': delivery_costs,
                                                                        'list_date_and_couriers': list_date_and_couriers,
-                                                                       'salaries': salaries}
+                                                                       'salaries': salaries,
+                                                                       'fullname_by_date': fullname_by_date,
+                                                                       'id_couriers_by_date': id_couriers_by_date,
+                                                                       'salaries_couriers_by_date': salaries_couriers_by_date}
     )
