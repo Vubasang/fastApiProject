@@ -7,6 +7,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 from sqlalchemy import DateTime
 
+import json
+
 from typing import Union
 
 import plotly.express as px
@@ -137,7 +139,6 @@ def couriersalaries(request: Request, dateSelected: Union[str, None] = Form(None
             values.append(value)
             counts.append(key)
 
-
         array_total = {}
         for k, v in array_result.items():
             array_total[k] = v - array_date_test.get(k, 0) - array_canceleds.get(k, 0)
@@ -152,88 +153,6 @@ def couriersalaries(request: Request, dateSelected: Union[str, None] = Form(None
         for i in id_orders:
             date_order.append(db.query(Order.date).filter(Order.id == i).all())
         date_orders = sorted([a[0][0].strftime('%Y/%m/%d') for a in date_order])
-
-        unit_id_organisation = []
-        for i in id_orders:
-            unit_id_organisation.append(db.query(Order.unit_id).filter(Order.id == i).all())
-        unit_id_organisations = [a[0][0] for a in unit_id_organisation]
-
-        name_organisation = []
-        for i in unit_id_organisations:
-            name_organisation.append(db.query(Organisations.name).filter(Organisations.id == i).all())
-        name_organisations = [a[0][0] for a in name_organisation]
-
-        dict_date_and_organisation = list(zip(date_orders, name_organisations))
-        dict_date_and_organisations = {}
-        for a in dict_date_and_organisation:
-            try:
-                dict_date_and_organisations[a] += 1
-            except KeyError:
-                dict_date_and_organisations[a] = 1
-
-        date_and_organisations = []
-        number_of_orders_by_organization = []
-        for value, key in dict_date_and_organisations.items():
-            date_and_organisations.append(value)
-            number_of_orders_by_organization.append(key)
-
-        dates = []
-        for i in range(len(date_and_organisations) - 1):
-            if date_and_organisations[i][0] not in dates:
-                dates.append(date_and_organisations[i][0])
-
-        organisations = []
-        for i in range(len(date_and_organisations) - 1):
-            if date_and_organisations[i][1] not in organisations:
-                organisations.append(date_and_organisations[i][1])
-
-        for i in range(len(organisations)):
-            globals()[f'ls_{i}'] = []
-            for j in range(len(dates)):
-                if (dates[j], organisations[i]) in date_and_organisations:
-                    for k in range(len(date_and_organisations)):
-                        if (dates[j], organisations[i]) == date_and_organisations[k]:
-                            globals()[f'ls_{i}'].append(number_of_orders_by_organization[k])
-                else:
-                    if (dates[j], organisations[i]) not in date_and_organisations:
-                        globals()[f'ls_{i}'].append(0)
-
-        # Установить ширину полосы
-        barWidth = 0.15
-        # fig, ax = plt.subplots(figsize=(14.9, 7))
-        fig2 = plt.figure(figsize=(14.9, 7))
-        # Установить положение стержня по оси X
-        # br0 = np.arange(len(dates))
-        for i in range(0, len(organisations)):
-            if i == 0:
-                globals()[f'br{i}'] = np.arange(len(dates))
-            else:
-                globals()[f'br{i}'] = [x + barWidth for x in globals()[f'br{i - 1}']]
-
-        for i in range(len(organisations)):
-            plt.bar(globals()[f'br{i}'], globals()[f'ls_{i}'],
-                    color=(random.random(), random.random(), random.random()),
-                    width=barWidth,
-                    edgecolor='grey', label=organisations[i])
-
-        # Количество заказов за все время по заведениям (по заведениям)
-        list_organizations_total_orders = []
-        for i in range(len(organisations)):
-            # globals()[f'Organizations_total_orders_{i}'] = sum(globals()[f'ls_{i}'])
-            list_organizations_total_orders.append(sum(globals()[f'ls_{i}']))
-
-        # Количество заказов за все время
-        total_orders = sum(list_organizations_total_orders)
-
-        list_date_order = list(set(date_orders))
-        list_date_orders = sorted([a for a in list_date_order])
-
-        id_organisation = db.query(Order.id).filter(Order.unit_id != 1).filter(Order.unit_id != 2).filter(
-            Order.unit_id != 3).all()
-        id_organisations = sorted([a[0] for a in id_organisation])
-        date_organisation = db.query(Order.date).filter(Order.unit_id != 1).filter(Order.unit_id != 2).filter(
-            Order.unit_id != 3).all()
-        date_organisations = sorted([a[0].strftime('%Y/%m/%d') for a in date_organisation])
 
         # Зарплата у курьеров по дням
         id_courier = []
@@ -293,17 +212,22 @@ def couriersalaries(request: Request, dateSelected: Union[str, None] = Form(None
                 id_couriers_by_date.append(list_date_and_couriers[i][2])
                 salaries_couriers_by_date.append(salaries[i])
 
+        headerElements = ["id", "fullname", "salaries"]
+
+        my_dicts = [{} for x in range(len(id_couriers_by_date))]
+        for i in range(len(id_couriers_by_date)):
+            my_dicts[i][headerElements[0]] = id_couriers_by_date[i]
+            my_dicts[i][headerElements[1]] = fullname_by_date[i]
+            my_dicts[i][headerElements[2]] = salaries_couriers_by_date[i]
+
     else:
         resultt = "Пожалуйста выберите правильную дату"
 
-    return templates.TemplateResponse('couriersalaries.html', context={'request': request, 'dateSelected': dateSelected, 'resultt': resultt,
+    return templates.TemplateResponse('couriersalaries.html', context={'request': request, 'dateSelected': dateSelected,
+                                                                       'resultt': resultt,
                                                                        'array_result': array_result,
                                                                        'id_orders': id_orders,
                                                                        'date_orders': date_orders,
-                                                                       'unit_id_organisations': unit_id_organisations,
-                                                                       'name_organisations': name_organisations,
-                                                                       'list_date_orders': list_date_orders,
-                                                                       'dict_date_and_organisations': dict_date_and_organisations,
                                                                        'values': values, 'counts': counts,
                                                                        'order_tests': order_tests,
                                                                        'date_tests': array_date_test,
@@ -311,9 +235,6 @@ def couriersalaries(request: Request, dateSelected: Union[str, None] = Form(None
                                                                        'date_order_canceleds': date_order_canceleds,
                                                                        'array_order_canceleds': array_canceleds,
                                                                        'array_total': array_total,
-                                                                       'id_organisation': id_organisations,
-                                                                       'date_organisations': date_organisations,
-                                                                       'total_orders': total_orders,
                                                                        'id_couriers': id_couriers,
                                                                        'first_name_couriers': first_name_couriers,
                                                                        'last_name_couriers': last_name_couriers,
@@ -325,5 +246,6 @@ def couriersalaries(request: Request, dateSelected: Union[str, None] = Form(None
                                                                        'salaries': salaries,
                                                                        'fullname_by_date': fullname_by_date,
                                                                        'id_couriers_by_date': id_couriers_by_date,
-                                                                       'salaries_couriers_by_date': salaries_couriers_by_date}
+                                                                       'salaries_couriers_by_date': salaries_couriers_by_date,
+                                                                       'my_dicts': my_dicts}
     )
