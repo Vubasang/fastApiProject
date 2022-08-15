@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% set active_page = "database" %}
+{% set active_page = "couriersalaries" %}
 
 {% block title %}Couriersalaries{% endblock %}
 
@@ -16,7 +16,7 @@
     <br>Выберите дату: <input type="date" id="dateSelected" name="dateSelected" value="{{ dateSelected }}"/>
 
     <button id="submit">Результат</button>
-    <h4 id="output" style="color:blue;">Выберите даты, чтобы начать</h4>
+    <h4 id="output" style="color:blue;">Выберите дату, чтобы начать</h4>
     <script>
         var todayDate = new Date()
         var month = todayDate.getMonth()+1
@@ -44,7 +44,7 @@
                 output.innerHTML = `Зарплата у каждого курьера на <span>${date}</span> составляет:`;
             }
             else {
-                output.innerHTML = "Пожалуйста выберите правильную дату";
+                output.innerHTML = "Пожалуйста, выберите дату";
             }
         });
     </script>

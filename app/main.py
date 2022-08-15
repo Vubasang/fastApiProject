@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from .library.helpers import *
-from app.routers import analytics, couriersalaries
+from app.routers import analytics, couriersalaries, analytics_by_periods
 
 
 app = FastAPI()
@@ -16,6 +16,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.include_router(couriersalaries.router)
 app.include_router(analytics.router)
+app.include_router(analytics_by_periods.router)
 
 
 @app.get("/", response_class=HTMLResponse)
