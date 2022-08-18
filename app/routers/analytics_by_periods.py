@@ -45,11 +45,11 @@ def analytics_by_periods(request: Request):
     db = SessionLocal()
     # print('QUERY', db.query(Order.date))
 
-    resultt = ''
+    resultt = 'Выберите даты, чтобы начать'
     return templates.TemplateResponse('analytics_by_periods.html', context={'request': request, 'resultt': resultt})
 
 @router.post('/analytics_by_periods', response_class=HTMLResponse)
-def analytics_by_periods(request: Request):
+def analytics_by_periods(request: Request, date1: Union[str, None] = Form(None), date2: Union[str, None] = Form(None)):
     SQLALCHEMY_DATABASE_URL = "postgresql://wubashang:wubashang_password@gogotech.ru:7777/db"
 
     engine = create_engine(
@@ -62,5 +62,9 @@ def analytics_by_periods(request: Request):
     db = SessionLocal()
     # print('QUERY', db.query(Order.date))
 
-    return templates.TemplateResponse('analytics_by_periods.html', context={'request': request}
+    if(date1 and date2):
+        resultt = 'Аналитика с ' + date1 + ' по ' + date2 + ' выглядит следующим образом:'
+    else:
+        resultt = "Пожалуйста, выберите даты"
+    return templates.TemplateResponse('analytics_by_periods.html', context={'request': request, 'resultt': resultt}
     )

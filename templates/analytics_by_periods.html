@@ -10,6 +10,8 @@
 {% endblock %}
 
 {% block page_content %}
+
+<form method="post">
 <h1 class="cap"><center>Аналитика по периодам</center></h1>
 
 <style>
@@ -68,7 +70,7 @@ button {
       <div class="inp-wrapper">
         <div class="date-wrapper">
           <label for="date1">С даты: </label>
-          <input type="date" id="date1" name="date1" value="{{ date1 }}"/>
+          <input type="date" id="date1" onBlur="myFunction()" name="date1" value="{{ date1 }}"/>
         </div>
         <div class="date-wrapper">
           <label for="date2">До даты: </label>
@@ -76,7 +78,7 @@ button {
         </div>
       </div>
       <button id="submit">Результат</button>
-      <div id="output">Выберите даты, чтобы начать</div>
+      <div id="output"></div>
     </div>
   </body>
 </html>
@@ -96,27 +98,34 @@ button {
   document.getElementById("date1").setAttribute("max", maxDate)
   document.getElementById("date1").setAttribute("min", min="2022-05-18")
   document.getElementById("date2").setAttribute("max", maxDate)
-  document.getElementById("date1").setAttribute("min", min=date1)
 
-  let submit = document.getElementById("submit");
-  let output = document.getElementById("output");
+  function myFunction() {
+    var minToDate = document.getElementById("date1").value;
+    document.getElementById("date2").setAttribute("min", minToDate);
+  }
 
-  submit.addEventListener("click", () => {
-  let date1 = new Date(document.getElementById("date1").value);
-  let date2 = new Date(document.getElementById("date2").value);
-  if (date1.getTime() && date2.getTime()) {
-    let date_1 = JSON.stringify(date1)
-    date_1 = date_1.slice(1,11)
-    let date_2 = JSON.stringify(date2)
-    date_2 = date_2.slice(1,11)
-    output.innerHTML = `Аналитика с <span>${date_1}</span> по  <span>${date_2}</span> выглядит следующим образом:`;
-  }
-  else {
-    output.innerHTML = "Пожалуйста, выберите даты";
-  }
- });
+  //let submit = document.getElementById("submit");
+  //let output = document.getElementById("output");
+
+  //submit.addEventListener("click", () => {
+    //let date1 = new Date(document.getElementById("date1").value);
+    //let date2 = new Date(document.getElementById("date2").value);
+
+    //if (date1.getTime() && date2.getTime()) {
+      //let date_1 = JSON.stringify(date1)
+      //date_1 = date_1.slice(1,11)
+      //let date_2 = JSON.stringify(date2)
+      //date_2 = date_2.slice(1,11)
+     // output.innerHTML = `Аналитика с <span>${date_1}</span> по  <span>${date_2}</span> выглядит следующим образом:`;
+    //}
+    //else {
+      //output.innerHTML = "Пожалуйста, выберите даты";
+  //}
+ //});
 </script>
+</form>
 
+<h2 style="color: red;"><center>{{resultt}}</center></h2>
 {% endblock %}
 
 {% block scripts %}
