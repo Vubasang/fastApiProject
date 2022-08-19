@@ -125,9 +125,9 @@ def analytics_by_periods(request: Request, date1: Union[str, None] = Form(None),
         array_canceled = dict(sorted(array_order_canceleds.items(), key=lambda x: datetime.strptime(x[0], "%Y-%m-%d")))
 
         # Общее количество заказов по дням
-        array_results = {i: array_result[i] for i in array_result if date1 < i < date2}
-        array_date_tests = {i: array_date_test[i] for i in array_date_test if date1 < i < date2}
-        array_canceleds = {i: array_canceled[i] for i in array_canceled if date1 < i < date2}
+        array_results = {i: array_result[i] for i in array_result if date1 <= i <= date2}
+        array_date_tests = {i: array_date_test[i] for i in array_date_test if date1 <= i <= date2}
+        array_canceleds = {i: array_canceled[i] for i in array_canceled if date1 <= i <= date2}
 
         c_date = collections.Counter(array_results) - collections.Counter(array_date_tests) - collections.Counter(
             array_canceleds)
@@ -181,19 +181,22 @@ def analytics_by_periods(request: Request, date1: Union[str, None] = Form(None),
             except KeyError:
                 dict_date_and_organisations[a] = 1
 
+        dict_date_and_organisations_by_period = {i: dict_date_and_organisations[i] for i in dict_date_and_organisations
+                                                 if date1 <= i[0] <= date2}
+
         date_and_organisations = []
         number_of_orders_by_organization = []
-        for value, key in dict_date_and_organisations.items():
+        for value, key in dict_date_and_organisations_by_period.items():
             date_and_organisations.append(value)
             number_of_orders_by_organization.append(key)
 
         dates = []
-        for i in range(len(date_and_organisations) - 1):
+        for i in range(len(date_and_organisations)):
             if date_and_organisations[i][0] not in dates:
                 dates.append(date_and_organisations[i][0])
 
         organisations = []
-        for i in range(len(date_and_organisations) - 1):
+        for i in range(len(date_and_organisations)):
             if date_and_organisations[i][1] not in organisations:
                 organisations.append(date_and_organisations[i][1])
 
@@ -227,14 +230,14 @@ def analytics_by_periods(request: Request, date1: Union[str, None] = Form(None),
                     edgecolor='grey', label=organisations[i])
 
         # Добавление Xticks и Yticks
-        ''' plt.title('Количество заказов (по заведениям)', fontsize=18, color='b')
+        plt.title('Количество заказов (по заведениям)', fontsize=18, color='b')
         plt.xlabel('Дата', fontweight='bold', fontsize=14)
         plt.ylabel('Количество заказов (по заведениям)', fontweight='bold', fontsize=14)
         plt.xticks([r + barWidth for r in range(len(dates))], dates, fontsize=10)
         plt.yticks(fontsize=10)
         plt.gcf().autofmt_xdate()
         plt.legend(fontsize=8)
-        fig2.savefig('static/Analytics_Number_of_orders_by_organization.png') '''
+        fig2.savefig('static/period/Analytics_Number_of_orders_by_organization.png')
 
         # Количество заказов за все время по заведениям (по заведениям)
         list_organizations_total_orders = []
@@ -244,7 +247,7 @@ def analytics_by_periods(request: Request, date1: Union[str, None] = Form(None),
 
         # Количество заказов за все время
         total_orders = sum(list_organizations_total_orders)
-        '''fig_orders = px.pie(values=list_organizations_total_orders, names=organisations,
+        fig_orders = px.pie(values=list_organizations_total_orders, names=organisations,
                             color_discrete_sequence=px.colors.sequential.RdBu, width=1490, height=700,
                             title="Количество заказов за все время по заведениям (по заведениям)")
 
@@ -259,7 +262,7 @@ def analytics_by_periods(request: Request, date1: Union[str, None] = Form(None),
                 color='#0000FF'
             ))
 
-        fig_orders.write_image('static/Number_of_orders_for_all_time_by_organization.png') '''
+        fig_orders.write_image('static/period/Number_of_orders_for_all_time_by_organization.png')
 
         list_date_order = list(set(date_orders))
         list_date_orders = sorted([a for a in list_date_order])
@@ -286,6 +289,8 @@ def analytics_by_periods(request: Request, date1: Union[str, None] = Form(None),
                                                                             'name_organisations': name_organisations,
                                                                             'list_date_orders': list_date_orders,
                                                                             'dict_date_and_organisations': dict_date_and_organisations,
+                                                                            'dict_date_and_organisations_by_period': dict_date_and_organisations_by_period,
+                                                                            'dates': dates,
                                                                             'c_date': c_date,
                                                                             'values': values, 'counts': counts,
                                                                             'order_tests': order_tests,
