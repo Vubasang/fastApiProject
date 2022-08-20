@@ -11,6 +11,8 @@ import plotly.express as px
 import numpy as np
 import matplotlib.pyplot as plt
 import random
+from random import sample
+import matplotlib.colors as pltc
 
 import collections
 
@@ -210,7 +212,8 @@ def form_get(request: Request):
 
     # Количество заказов за все время
     total_orders = sum(list_organizations_total_orders)
-    fig_orders = px.pie(values=list_organizations_total_orders, names=organisations,
+
+    '''fig_orders = px.pie(values=list_organizations_total_orders, names=organisations,
                         color_discrete_sequence=px.colors.sequential.RdBu, width=1490, height=700,
                         title="Количество заказов за все время по заведениям (по заведениям)")
 
@@ -224,7 +227,24 @@ def form_get(request: Request):
         color='#0000FF'
     ))
 
-    fig_orders.write_image('static/Number_of_orders_for_all_time_by_organization.png')
+    fig_orders.write_image('static/Number_of_orders_for_all_time_by_organization.png') '''
+
+    all_colors = [k for k, v in pltc.cnames.items()]
+
+    fig3 = plt.figure(figsize=(17, 9))
+    plt.suptitle('Количество заказов за все время по заведениям (по заведениям)', fontsize=18, color='b')
+
+    plt.pie(list_organizations_total_orders,
+            labels=organisations,
+            pctdistance=1.15,
+            labeldistance=1.31,
+            autopct=lambda x: f'{x:.2f}%({(x / 100) * sum(list_organizations_total_orders):.0f} заказ)',
+            textprops={"family": "Arial", "size": 8},
+            radius=1.0,
+            colors=sample(all_colors, len(list_organizations_total_orders))
+            )
+    plt.legend(loc="upper right", bbox_to_anchor=(1.6, 1.1), title="Названия организаций", fontsize=12)
+    fig3.savefig('static/Number_of_orders_for_all_time_by_organization.png')
 
     list_date_order = list(set(date_orders))
     list_date_orders = sorted([a for a in list_date_order])
