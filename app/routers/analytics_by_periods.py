@@ -139,7 +139,7 @@ def analytics_by_periods(request: Request, date1: Union[str, None] = Form(None),
             values.append(value)
             counts.append(key)
 
-        fig1 = plt.figure(figsize=(14.9, 7))
+        fig1 = plt.figure(figsize=(18.5, 10))
         plt.plot(values, counts)
         for a, b in zip(values, counts):
             plt.text(a, b, str(b))
@@ -147,7 +147,7 @@ def analytics_by_periods(request: Request, date1: Union[str, None] = Form(None),
         plt.xlabel('Дата', fontsize=14)
         plt.ylabel('Общее количество заказов', fontsize=14)
         plt.gcf().autofmt_xdate()
-        fig1.savefig('static/period/Analytics_Total_number_of_orders.png')
+        fig1.savefig('static/Analytics_Total_number_of_orders_by_period.png')
         plt.close()
 
         array_total = {}
@@ -216,7 +216,7 @@ def analytics_by_periods(request: Request, date1: Union[str, None] = Form(None),
         # Установить ширину полосы
         barWidth = 0.15
         # fig, ax = plt.subplots(figsize=(14.9, 7))
-        fig2 = plt.figure(figsize=(14.9, 7))
+        fig2 = plt.figure(figsize=(18.5, 10))
         # Установить положение стержня по оси X
         # br0 = np.arange(len(dates))
         for i in range(0, len(organisations)):
@@ -239,7 +239,7 @@ def analytics_by_periods(request: Request, date1: Union[str, None] = Form(None),
         plt.yticks(fontsize=10)
         plt.gcf().autofmt_xdate()
         plt.legend(fontsize=8)
-        fig2.savefig('static/period/Analytics_Number_of_orders_by_organization.png')
+        fig2.savefig('static/Analytics_Number_of_orders_by_organization_by_period.png')
 
         # Количество заказов за все время по заведениям (по заведениям)
         list_organizations_total_orders = []
@@ -268,7 +268,7 @@ def analytics_by_periods(request: Request, date1: Union[str, None] = Form(None),
 
         all_colors = [k for k, v in pltc.cnames.items()]
 
-        fig3 = plt.figure(figsize=(17, 9))
+        fig3 = plt.figure(figsize=(18.5, 10))
         plt.suptitle('Количество заказов за все время по заведениям (по заведениям)', fontsize=18, color='b')
 
         plt.pie(list_organizations_total_orders,
@@ -280,8 +280,8 @@ def analytics_by_periods(request: Request, date1: Union[str, None] = Form(None),
                 radius=1.0,
                 colors=sample(all_colors, len(list_organizations_total_orders))
                 )
-        plt.legend(loc="upper right", bbox_to_anchor=(1.6, 1.1), title="Названия организаций")
-        fig3.savefig('static/period/Number_of_orders_for_all_time_by_organization.png')
+        plt.legend(loc="upper right", bbox_to_anchor=(1.65, 1.1), title="Названия организаций")
+        fig3.savefig('static/Number_of_orders_for_all_time_by_organization_by_period.png')
 
         list_date_order = list(set(date_orders))
         list_date_orders = sorted([a for a in list_date_order])
@@ -292,9 +292,6 @@ def analytics_by_periods(request: Request, date1: Union[str, None] = Form(None),
         date_organisation = db.query(Order.date).filter(Order.unit_id != 1).filter(Order.unit_id != 2).filter(
             Order.unit_id != 3).all()
         date_organisations = sorted([a[0].strftime('%Y-%m-%d') for a in date_organisation])
-
-        print(date1)
-        print(date2)
 
     else:
         resultt = "Пожалуйста, выберите даты"

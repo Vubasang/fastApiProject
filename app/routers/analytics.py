@@ -106,7 +106,7 @@ def form_get(request: Request):
         values.append(value)
         counts.append(key)
 
-    fig1 = plt.figure(figsize=(14.9, 7))
+    fig1 = plt.figure(figsize=(18.5, 10))
     plt.plot(values, counts)
     for a, b in zip(values, counts):
         plt.text(a, b, str(b))
@@ -180,7 +180,7 @@ def form_get(request: Request):
     # Установить ширину полосы
     barWidth = 0.15
     # fig, ax = plt.subplots(figsize=(14.9, 7))
-    fig2 = plt.figure(figsize=(14.9, 7))
+    fig2 = plt.figure(figsize=(18.5, 10))
     # Установить положение стержня по оси X
     # br0 = np.arange(len(dates))
     for i in range(0, len(organisations)):
@@ -231,7 +231,7 @@ def form_get(request: Request):
 
     all_colors = [k for k, v in pltc.cnames.items()]
 
-    fig3 = plt.figure(figsize=(17, 9))
+    fig3 = plt.figure(figsize=(18.5, 10))
     plt.suptitle('Количество заказов за все время по заведениям (по заведениям)', fontsize=18, color='b')
 
     plt.pie(list_organizations_total_orders,
@@ -243,7 +243,7 @@ def form_get(request: Request):
             radius=1.0,
             colors=sample(all_colors, len(list_organizations_total_orders))
             )
-    plt.legend(loc="upper right", bbox_to_anchor=(1.6, 1.1), title="Названия организаций", fontsize=12)
+    plt.legend(loc="upper right", bbox_to_anchor=(1.65, 1.1), title="Названия организаций", fontsize=12)
     fig3.savefig('static/Number_of_orders_for_all_time_by_organization.png')
 
     list_date_order = list(set(date_orders))
